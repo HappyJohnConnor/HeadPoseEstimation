@@ -40,3 +40,10 @@ def crop_image(mat_path, img_path):
     img = img.crop((int(x_min), int(y_min), int(x_max), int(y_max)))
 
     return img
+
+def convert_img_to_array(img, img_size):
+    # 画像を25x25pixelに変換し、1要素が[R,G,B]3要素を含む配列の25x25の２次元配列として読み込む。
+    # [R,G,B]はそれぞれが0-255の配列。
+    image = np.array(img.resize(img_size))
+    # さらにフラットな1次元配列に変換。最初の1/3はRed、次がGreenの、最後がBlueの要素がフラットに並ぶ。
+    return image
