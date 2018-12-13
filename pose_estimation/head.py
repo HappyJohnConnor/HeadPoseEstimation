@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+
+from keras.utils.vis_utils import model_to_dot
+from IPython.display import SVG
+from googlenet import googlenet
 from keras.models import Sequential
 from keras.layers import Activation, Dense, Dropout
 from keras.utils.np_utils import to_categorical
@@ -16,11 +21,11 @@ TRAIN_DIR = './dataset/train/300W_LP'
 degree_th = 10
 dir_path_ls = ['AFW']
 for each_dir in dir_path_ls:
-    dir_path = os.path.join(TRAIN_DIR, each_dir) 
+    dir_path = os.path.join(TRAIN_DIR, each_dir)
     mat_files = glob.glob(dir_path+'/*.mat')
     jpg_images = glob.glob(dir_path+'/*.jpg')
-    
-    for mat_file, jpg_imgae in zip(mat_files, jpg_images) :
+
+    for mat_file, jpg_imgae in zip(mat_files, jpg_images):
         pose_params = util.get_ypr_from_mat(mat_file)
 
         # 度数に変換
@@ -49,13 +54,14 @@ image_list = np.array(image_list)
 # 0 -> [1,0], 1 -> [0,1] という感じ。
 Y = to_categorical(label_list)
 
-from googlenet import googlenet
 # オプティマイザにAdamを使用
 opt = Adam(lr=0.001)
 # モデルをコンパイル
-googlenet.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
+googlenet.compile(loss="categorical_crossentropy",
+                  optimizer=opt, metrics=["accuracy"])
 # 学習を実行。10%はテストに使用。
-googlenet.fit(image_list, Y, nb_epoch=1500, batch_size=100, validation_split=0.1)
+googlenet.fit(image_list, Y, nb_epoch=1500,
+              batch_size=100, validation_split=0.1)
 
 
 """
@@ -66,11 +72,11 @@ ok_count = 0.
 
 # テスト用ディレクトリ(./data/train/)の画像でチェック。正解率を表示する。
 TEST_DIR = './dataset/test/AFLW2000'
-degree_th = 10 
-mat_files = glob.glob(TEST_DIR +'/*.mat')
-jpg_images = glob.glob(TEST_DIR +'/*.jpg')
+degree_th = 10
+mat_files = glob.glob(TEST_DIR + '/*.mat')
+jpg_images = glob.glob(TEST_DIR + '/*.jpg')
 
-for mat_file, jpg_imgae in zip(mat_files, jpg_images) :
+for mat_file, jpg_imgae in zip(mat_files, jpg_images):
     pose_params = util.get_ypr_from_mat(mat_file)
 
     # 度数に変換
@@ -81,12 +87,13 @@ for mat_file, jpg_imgae in zip(mat_files, jpg_images) :
     if abs(pitch) <= degree_th and abs(roll) <= degree_th:
         image = np.array(Image.open(jpg_imgae).resize((25, 25)))
         image = image.transpose(2, 0, 1)
-        image = image.reshape(1, image.shape[0] * image.shape[1] * image.shape[2]).astype("float32")[0]
+        image = image.reshape(
+            1, image.shape[0] * image.shape[1] * image.shape[2]).astype("float32")[0]
         result = model.predict_classes(np.array([image / 255.]))
-        
+
         label = int(yaw - yaw % 10)
         print("label:", label, "result:", result[0])
-        
+
         total += 1.
 
         if label == int(result[0]):
@@ -96,7 +103,5 @@ for mat_file, jpg_imgae in zip(mat_files, jpg_images) :
 print("seikai: ", ok_count / total * 100, "%")
 
 # モデルの可視化
-from IPython.display import SVG
-from keras.utils.vis_utils import model_to_dot
 
 SVG(model_to_dot(model).create(prog='dot', format='svg'))

@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import scipy.io as sio
 import numpy as np
 from PIL import Image
+
 
 def get_ypr_from_mat(mat_path):
     # Get yaw, pitch, roll from .mat annotation.
@@ -12,19 +15,21 @@ def get_ypr_from_mat(mat_path):
     pose_params = pre_pose_params[:3]
     return pose_params
 
+
 def get_pt2d_from_mat(mat_path):
     # Get 2D landmarks
     mat = sio.loadmat(mat_path)
     pt2d = mat['pt2d']
     return pt2d
 
+
 def crop_image(mat_path, img_path):
     img = Image.open(img_path)
     pt2d = get_pt2d_from_mat(mat_path)
-    x_min = min(pt2d[0,:])
-    y_min = min(pt2d[1,:])
-    x_max = max(pt2d[0,:])
-    y_max = max(pt2d[1,:])
+    x_min = min(pt2d[0, :])
+    y_min = min(pt2d[1, :])
+    x_max = max(pt2d[0, :])
+    y_max = max(pt2d[1, :])
 
     # k = 0.2 to 0.40
     k = np.random.random_sample() * 0.2 + 0.2

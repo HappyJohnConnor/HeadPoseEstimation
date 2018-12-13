@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import glob
 import scipy.io as sio
@@ -5,6 +7,7 @@ import shutil
 import numpy as np
 import pandas as pd
 from PIL import Image
+
 
 def get_ypr_from_mat(mat_path):
     # Get yaw, pitch, roll from .mat annotation.
@@ -16,19 +19,21 @@ def get_ypr_from_mat(mat_path):
     pose_params = pre_pose_params[:3]
     return pose_params
 
+
 def get_pt2d_from_mat(mat_path):
     # Get 2D landmarks
     mat = sio.loadmat(mat_path)
     pt2d = mat['pt2d']
     return pt2d
 
+
 def crop_and_save(mat_path, img_path, save_path):
     img = Image.open(img_path)
     pt2d = get_pt2d_from_mat(mat_path)
-    x_min = min(pt2d[0,:])
-    y_min = min(pt2d[1,:])
-    x_max = max(pt2d[0,:])
-    y_max = max(pt2d[1,:])
+    x_min = min(pt2d[0, :])
+    y_min = min(pt2d[1, :])
+    x_max = max(pt2d[0, :])
+    y_max = max(pt2d[1, :])
 
     # k = 0.2 to 0.40
     k = np.random.random_sample() * 0.2 + 0.2
@@ -40,6 +45,7 @@ def crop_and_save(mat_path, img_path, save_path):
 
     # save iamges
     img.save(save_path)
+
 
 # フォルダを生成
 BASE_DIR = os.path.realpath(os.path.dirname(__file__))
@@ -62,11 +68,11 @@ files_ls = []
 degree_th = 10
 dir_path_ls = ['AFW']
 for each_dir in dir_path_ls:
-    dir_path = os.path.join('../300W_LP', each_dir) 
+    dir_path = os.path.join('../300W_LP', each_dir)
     mat_files = glob.glob(dir_path+'/*.mat')
     jpg_images = glob.glob(dir_path+'/*.jpg')
-    
-    for mat_file, jpg_imgae in zip(mat_files, jpg_images) :
+
+    for mat_file, jpg_imgae in zip(mat_files, jpg_images):
         pose_params = get_ypr_from_mat(mat_file)
 
         # 度数に変換
@@ -77,8 +83,6 @@ for each_dir in dir_path_ls:
         if abs(pitch) <= degree_th and abs(roll) <= degree_th:
             # ファイル名を取得
             file_name = os.path.basename(jpg_imgae)
-            save_path = os.path.join(folder_dict[int(yaw - yaw % 10)], file_name)
+            save_path = os.path.join(
+                folder_dict[int(yaw - yaw % 10)], file_name)
             crop_and_save(mat_file, jpg_imgae, save_path)
-            
-            
-

@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import os
 import glob
 import scipy.io as sio
 import numpy as np
 from PIL import Image
+
 
 def get_ypr_from_mat(mat_path):
     # Get yaw, pitch, roll from .mat annotation.
@@ -14,19 +17,21 @@ def get_ypr_from_mat(mat_path):
     pose_params = pre_pose_params[:3]
     return pose_params
 
+
 def get_pt2d_from_mat(mat_path):
     # Get 2D landmarks
     mat = sio.loadmat(mat_path)
     pt2d = mat['pt2d']
     return pt2d
 
+
 def crop_image(mat_path, img_path):
     img = Image.open(img_path)
     pt2d = get_pt2d_from_mat(mat_path)
-    x_min = min(pt2d[0,:])
-    y_min = min(pt2d[1,:])
-    x_max = max(pt2d[0,:])
-    y_max = max(pt2d[1,:])
+    x_min = min(pt2d[0, :])
+    y_min = min(pt2d[1, :])
+    x_max = max(pt2d[0, :])
+    y_max = max(pt2d[1, :])
 
     # k = 0.2 to 0.40
     k = np.random.random_sample() * 0.2 + 0.2
@@ -38,6 +43,7 @@ def crop_image(mat_path, img_path):
 
     return img
 
+
 def convert_img_to_array(img):
     # 画像を25x25pixelに変換し、1要素が[R,G,B]3要素を含む配列の25x25の２次元配列として読み込む。
     # [R,G,B]はそれぞれが0-255の配列。
@@ -45,9 +51,11 @@ def convert_img_to_array(img):
     # 配列を変換し、[[Redの配列],[Greenの配列],[Blueの配列]] のような形にする。
     image = image.transpose(2, 0, 1)
     # さらにフラットな1次元配列に変換。最初の1/3はRed、次がGreenの、最後がBlueの要素がフラットに並ぶ。
-    image = image.reshape(1, image.shape[0] * image.shape[1] * image.shape[2]).astype("float32")[0]
-    
+    image = image.reshape(
+        1, image.shape[0] * image.shape[1] * image.shape[2]).astype("float32")[0]
+
     return image
+
 
 # 学習用のデータを作る.
 image_list = []
@@ -59,11 +67,11 @@ files_ls = []
 degree_th = 10
 dir_path_ls = ['AFW']
 for each_dir in dir_path_ls:
-    dir_path = os.path.join(BASE_DIR, each_dir) 
+    dir_path = os.path.join(BASE_DIR, each_dir)
     mat_files = glob.glob(dir_path+'/*.mat')
     jpg_images = glob.glob(dir_path+'/*.jpg')
-    
-    for mat_file, jpg_imgae in zip(mat_files, jpg_images) :
+
+    for mat_file, jpg_imgae in zip(mat_files, jpg_images):
         pose_params = get_ypr_from_mat(mat_file)
 
         # 度数に変換
@@ -84,7 +92,3 @@ for each_dir in dir_path_ls:
 
 print(len(label_list))
 print(len(image_list))
-
-            
-            
-
