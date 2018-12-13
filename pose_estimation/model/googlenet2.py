@@ -48,7 +48,7 @@ def create_googlenet(weights_path = None):
 
     drop1 = Dropout(rate=0.4)(averagepool1_7x7_s1)
 
-    linear = Dense(units=171, activation="softmax", kernel_regularizer=l2(0.01))(keras.layers.core.Flatten()(drop1))
+    linear = Dense(units=18, activation="softmax", kernel_regularizer=l2(0.01))(keras.layers.core.Flatten()(drop1))
     last = linear
 
     model = Model(inputs=input, outputs=last)

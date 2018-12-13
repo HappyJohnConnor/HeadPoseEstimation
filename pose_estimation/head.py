@@ -21,7 +21,7 @@ TRAIN_DIR = './dataset/train/300W_LP'
 #dir_path_ls = ['AFW', 'HELEN', 'IBUG', 'LFPW']
 degree_th = 10
 img_size = (224, 224)
-dir_path_ls = ['HELEN']
+dir_path_ls = ['AFW']
 for each_dir in dir_path_ls:
     dir_path = os.path.join(TRAIN_DIR, each_dir)
     mat_files = glob.glob(dir_path+'/*.mat')
@@ -37,7 +37,8 @@ for each_dir in dir_path_ls:
 
         if abs(pitch) <= degree_th and abs(roll) <= degree_th:
             # labelに格納
-            label_list.append(int(yaw - yaw % 10) + 90)
+            # 0, 1, 2, .. となるようにする
+            label_list.append(int((yaw - yaw % 10) + 90)/10)
             # ファイル名を取得
             file_name = os.path.basename(jpg_imgae)
             img = util.crop_image(mat_file, jpg_imgae)
@@ -48,14 +49,8 @@ for each_dir in dir_path_ls:
 
 print(len(label_list))
 print(len(image_list))
-l_unique = list(set(label_list))
-
-print(l_unique)
 
 # kerasに渡すためにnumpy配列に変換。
-print (image_list[0].shape)
-print (type(image_list))
-print (type(image_list[0]))
 image_list = np.array(image_list)
 
 # ラベルの配列を1と0からなるラベル配列に変更
@@ -69,7 +64,8 @@ opt = Adam(lr=0.001)
 # モデルをコンパイル
 model = googlenet2.create_googlenet('./model/googlenet_weights.h5')
 model.compile(loss="categorical_crossentropy",
-                   optimizer=opt, metrics=["accuracy"])
+                optimizer=opt, 
+                metrics=["accuracy"])
 # 学習を実行。10%はテストに使用。
 print (image_list[0].shape)
 model.fit(image_list, Y, epochs=1500,
