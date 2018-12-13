@@ -1,0 +1,11 @@
+dlib
+IPython
+keras
+matplotlib
+numpy
+opencv-python
+pandas
+Pillow
+scipy
+scikit-image
+tensorflow

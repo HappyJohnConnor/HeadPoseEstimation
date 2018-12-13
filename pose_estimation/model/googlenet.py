@@ -9,7 +9,7 @@ from keras.optimizers import SGD
 import sys
 
 
-def googlenet(weight_path=None):
+def google_net(weight_path=None):
     input = Input(shape=(224, 224, 3))
 
     conv1_7x7_s2 = Conv2D(filters=64, kernel_size=(7, 7), strides=(

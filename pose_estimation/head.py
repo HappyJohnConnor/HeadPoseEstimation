@@ -2,7 +2,7 @@
 
 from keras.utils.vis_utils import model_to_dot
 from IPython.display import SVG
-from googlenet import googlenet
+from model.googlenet import google_net
 from keras.models import Sequential
 from keras.layers import Activation, Dense, Dropout
 from keras.utils.np_utils import to_categorical
@@ -57,11 +57,11 @@ Y = to_categorical(label_list)
 # オプティマイザにAdamを使用
 opt = Adam(lr=0.001)
 # モデルをコンパイル
-googlenet.compile(loss="categorical_crossentropy",
-                  optimizer=opt, metrics=["accuracy"])
+google_net.compile(loss="categorical_crossentropy",
+                   optimizer=opt, metrics=["accuracy"])
 # 学習を実行。10%はテストに使用。
-googlenet.fit(image_list, Y, nb_epoch=1500,
-              batch_size=100, validation_split=0.1)
+google_net.fit(image_list, Y, nb_epoch=1500,
+               batch_size=100, validation_split=0.1)
 
 
 """
