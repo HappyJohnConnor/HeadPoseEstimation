@@ -57,20 +57,27 @@ image_list = np.array(image_list)
 # 0 -> [1,0], 1 -> [0,1] という感じ。
 Y = to_categorical(label_list)
 print(Y)
-print (Y.shape)
+print(Y.shape)
 
-# オプティマイザにAdamを使用
-opt = Adam(lr=0.001)
 # モデルをコンパイル
 model = googlenet2.create_googlenet('./model/googlenet_weights.h5')
 model.compile(loss="categorical_crossentropy",
-                optimizer=opt, 
-                metrics=["accuracy"])
+              optimizer=optimizers.SGD(
+                  lr=0.001, momentum=param['momentum']),
+              metrics=["accuracy"])
 # 学習を実行。10%はテストに使用。
-print (image_list[0].shape)
+print(image_list[0].shape)
 model.fit(image_list, Y, epochs=1500,
-               batch_size=10, validation_split=0.1)
+          batch_size=10, validation_split=0.1)
 
+model_save_path = './model/save'
+# モデルの保存
+json_string = model.to_json()
+open(os.path.join(model_save_path, 'my_model.json'), 'w').write(json_string)
+yaml_string = model.to_yaml()
+open(os.path.join(model_save_path, 'my_model.yaml'), 'w').write(yaml_string)
+print('save weights')
+model.save_weights(os.path.join(model_save_path, 'my_model_weights.hdf5'))
 
 """
 ここからテスト
