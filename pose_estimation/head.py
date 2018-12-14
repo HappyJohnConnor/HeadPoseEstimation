@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import matplotlib.pyplot as plt
 import glob
 #from keras.utils.vis_utils import model_to_dot
 from IPython.display import SVG
@@ -67,8 +68,8 @@ model.compile(loss="categorical_crossentropy",
               metrics=["accuracy"])
 # 学習を実行。10%はテストに使用。
 print(image_list[0].shape)
-model.fit(image_list, Y, epochs=1500,
-          batch_size=10, validation_split=0.1)
+history = model.fit(image_list, Y, epochs=1500,
+                    batch_size=10, validation_split=0.1)
 
 model_save_path = './model/save'
 # モデルの保存
@@ -79,6 +80,31 @@ open(os.path.join(model_save_path, 'my_model.yaml'), 'w').write(yaml_string)
 print('save weights')
 model.save_weights(os.path.join(model_save_path, 'my_model_weights.hdf5'))
 
+
+# Plot accuracy &amp; loss
+
+acc = history.history["acc"]
+val_acc = history.history["val_acc"]
+loss = history.history["loss"]
+val_loss = history.history["val_loss"]
+
+epochs = range(1, len(acc) + 1)
+
+# plot accuracy
+plt.plot(epochs, acc, "bo", label="Training acc")
+plt.plot(epochs, val_acc, "b", label="Validation acc")
+plt.title("Training and Validation accuracy")
+plt.legend()
+plt.savefig("acc.png")
+plt.close()
+
+# plot loss
+plt.plot(epochs, loss, "bo", label="Training loss")
+plt.plot(epochs, val_loss, "b", label="Validation loss")
+plt.title("Training and Validation loss")
+plt.legend()
+plt.savefig("loss.png")
+plt.close()
 """
 ここからテスト
 """
