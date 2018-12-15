@@ -48,7 +48,7 @@ def crop_and_save(mat_path, img_path, save_path):
 
 
 # フォルダを生成
-BASE_DIR = os.path.realpath(os.path.dirname(__file__))
+BASE_DIR = os.path.realpath(os.path.join('./dataset/divided/train/tmp'))
 
 # 10度づつに分割
 degree = -90

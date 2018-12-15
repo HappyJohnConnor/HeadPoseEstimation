@@ -42,3 +42,44 @@ def Pose_300W_LP():
                 image_list.append(img / 255.)
 
     return image_list, label_list
+
+import pandas
+from keras.utils import np_utils
+from keras.utils import Sequence
+from pathlib import Path
+
+class PoseSequence(Sequence):
+    def __init__(self, kind, length):
+        self.kind = kind
+        self.length = length
+        TRAIN_DIR = './dataset/train/300W_LP'
+        file_ls = []
+        dir_path_ls = ['AFW', 'HELEN', 'IBUG', 'LFPW']
+        
+        for each_dir in dir_path_ls:
+            dir_path = os.path.join(TRAIN_DIR, each_dir)
+            img_files = glob.glob(dir_path+'/*.jp')
+            file_ls.append(img_files)
+        self.data_file_path = file_ls
+
+    def __getitem__(self, idx):
+        # データの取得実装
+        data = pandas.read_csv(self.data_file_path.format(idx), encoding="utf-8")
+        data = data.fillna(0)
+        
+        # 訓練データと教師データに分ける
+        x_rows, y_rows = get_data(data)
+        
+        # ラベルデータのカテゴリカル変数化
+        Y = np_utils.to_categorical(y_rows, nb_classes) 
+        X = np.array(x_rows.values)
+        
+        return X, Y
+
+    def __len__(self):
+        # 全データの長さ
+        return len(self.data_file_path)
+
+    def on_epoch_end(self):
+        # epoch終了時の処理
+        pass

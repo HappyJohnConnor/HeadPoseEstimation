@@ -53,6 +53,7 @@ print(len(image_list))
 
 # kerasに渡すためにnumpy配列に変換。
 image_list = np.array(image_list)
+new_img_ls = image_list[np.newaxis]  #  (Height, Width, Channels)  -> (1, Height, Width, Channels) 
 
 # ラベルの配列を1と0からなるラベル配列に変更
 # 0 -> [1,0], 1 -> [0,1] という感じ。
@@ -60,6 +61,17 @@ Y = to_categorical(label_list)
 print(Y)
 print(Y.shape)
 
+datagen = ImageDataGenerator(
+    rescale=1./255,
+    rotation_range=40,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    preprocessing_function=get_random_eraser(v_l=0, v_h=1, pixel_level=False))
+
+gen_flow = datagen.flow(new_img_ls, batch_size=16) 
 # モデルをコンパイル
 model = googlenet2.create_googlenet('./model/googlenet_weights.h5')
 model.compile(loss="categorical_crossentropy",
@@ -67,9 +79,13 @@ model.compile(loss="categorical_crossentropy",
                   lr=0.001, momentum=param['momentum']),
               metrics=["accuracy"])
 # 学習を実行。10%はテストに使用。
-print(image_list[0].shape)
-history = model.fit(image_list, Y, epochs=1500,
-                    batch_size=10, validation_split=0.1)
+history = model.fit_generator(
+    datagen.flow(new_img_ls, batch_size=16), 
+    Y, 
+    epochs=1500,
+    batch_size=10, 
+    validation_split=0.1
+)
 
 model_save_path = './model/save'
 # モデルの保存
