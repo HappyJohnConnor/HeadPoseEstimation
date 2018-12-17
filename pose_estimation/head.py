@@ -84,7 +84,7 @@ history = model.fit_generator(
     Y, 
     epochs=1500,
     batch_size=10, 
-    validation_split=0.1
+    validation_split=0.4
 )
 
 model_save_path = './model/save'

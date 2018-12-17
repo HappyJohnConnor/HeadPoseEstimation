@@ -41,7 +41,7 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    args = parse_args()
+    args = parse_args()d
     num_epochs = args.num_epochs
     batch_size = args.batch_size
 
@@ -76,7 +76,6 @@ if __name__ == '__main__':
                   metrics=["accuracy"])
 
     # 学習を実行。40%はテストに使用。
-    print(image_list[0].shape)
     history = model.fit_generator(
         datagen.flow(new_img_ls, batch_size=16),,
         Y,
