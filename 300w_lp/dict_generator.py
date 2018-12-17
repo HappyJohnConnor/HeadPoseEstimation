@@ -48,27 +48,40 @@ def crop_and_save(mat_path, img_path, save_path):
 
 
 # フォルダを生成
-BASE_DIR = os.path.realpath(os.path.join('./dataset/divided/train/tmp'))
+BASE_DIR = './dataset/divided/tmp'
+os.makedirs(BASE_DIR, exist_ok=True)
+train_path = './dataset/divided/train/'
+os.makedirs(train_path, exist_ok=True)
+valid_path = './dataset/divided/valid/'
+os.makedirs(valid_path, exist_ok=True)
 
 # 10度づつに分割
 degree = -90
 folder_name = ''
-folder_dict = {}
+train_dict = {}
+valid_dict = {}
 while degree < 90:
     folder_name = degree
-    DEGREE_DIR = os.path.join(BASE_DIR, str(folder_name))
-    if not os.path.exists(DEGREE_DIR):
-        os.mkdir(DEGREE_DIR)
-    folder_dict[degree] = DEGREE_DIR
+    # train folder
+    train_dir = os.path.join(train_path, str(folder_name))
+    train_dict[degree] = train_dir
+    os.makedirs(train_dir, exist_ok = True)
+    
+    # validation folder
+    valid_dir = os.path.join(valid_path, str(folder_name))
+    valid_dict[degree] = valid_dir
+    os.makedirs(valid_dir, exist_ok = True)
+    
     degree += 10
 
 
-#dir_path_ls = ['AFW', 'HELEN', 'IBUG', 'LFPW']
+dir_path_ls = ['AFW', 'HELEN', 'IBUG', 'LFPW']
 files_ls = []
 degree_th = 10
-dir_path_ls = ['AFW']
+# dir_path_ls = ['AFW']
+dataset_path =  '../pose_estimation/dataset/train/300W_LP'
 for each_dir in dir_path_ls:
-    dir_path = os.path.join('../300W_LP', each_dir)
+    dir_path = os.path.join(dataset_path, each_dir)
     mat_files = glob.glob(dir_path+'/*.mat')
     jpg_images = glob.glob(dir_path+'/*.jpg')
 
@@ -83,6 +96,10 @@ for each_dir in dir_path_ls:
         if abs(pitch) <= degree_th and abs(roll) <= degree_th:
             # ファイル名を取得
             file_name = os.path.basename(jpg_imgae)
-            save_path = os.path.join(
-                folder_dict[int(yaw - yaw % 10)], file_name)
+            random_dir = np.random.choice(
+                # 20%
+                [train_dict[int(yaw - yaw % 10)], valid_dict[int(yaw - yaw % 10)]], 
+                p=[0.8, 0.2]
+            )
+            save_path = os.path.join(random_dir, file_name)
             crop_and_save(mat_file, jpg_imgae, save_path)

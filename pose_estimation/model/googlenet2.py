@@ -9,8 +9,8 @@ from keras.optimizers import SGD
 import sys
 from .inceptionModel import inception_model
 
-def create_googlenet(weights_path = None):
-    input = Input(shape=(224, 224, 3))
+def create_googlenet(img_size = 150, weights_path = None):
+    input = Input(shape=(img_size, img_size, 3))
 
     conv1_7x7_s2 = Conv2D(filters=64, kernel_size=(7, 7), strides=(2, 2), padding='same', activation='relu', kernel_regularizer=l2(0.01))(input)
 
