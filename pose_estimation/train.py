@@ -82,7 +82,7 @@ if __name__ == '__main__':
         Y,
         epochs=args.num_epochs,
         batch_size=args.batch_size,
-        validation_split=0.4
+        validation_split=0.2
     )
 
     # モデルの保存

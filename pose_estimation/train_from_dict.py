@@ -91,12 +91,6 @@ if __name__ == '__main__':
 
     # モデルの保存
     model_save_path = './model/output'
-    json_string = model.to_json()
-    open(os.path.join(model_save_path, args.model_name + '.json'),
-         'w').write(json_string)
-    yaml_string = model.to_yaml()
-    open(os.path.join(model_save_path, args.model_name + '.yaml'),
-         'w').write(yaml_string)
     print('save weights')
     model.save_weights(os.path.join(
         model_save_path, args.model_name + '.hdf5'))
