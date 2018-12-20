@@ -5,12 +5,16 @@ import glob
 import os
 from IPython.display import SVG
 from keras import optimizers
-from keras.models import Sequential
-from keras.layers import Activation, Dense, Dropout
+from keras.callbacks import  EarlyStopping
+from keras.layers import Activation, Dense, Dropout, Input, Flatten
 from keras.utils.np_utils import to_categorical
 from keras.optimizers import Adagrad
 from keras.optimizers import Adam
 from keras.preprocessing.image import ImageDataGenerator
+from keras.applications.vgg16 import VGG16
+from keras.preprocessing import image
+from keras.models import Model
+
 from PIL import Image
 
 from model import googlenet2
@@ -67,13 +71,30 @@ if __name__ == '__main__':
             class_mode='categorical')
 
     # モデルをコンパイル
-    model = googlenet2.create_googlenet(
-        img_size = img_size,
-        weights_path = './model/googlenet_weights.h5')
+    model = VGG16(weights='imagenet', 
+        include_top=False, 
+        input_tensor=Input(shape=(img_size, img_size, 3))
+    )
+
+    # 最後の畳み込み層より前の層の再学習を防止
+    for layer in model.layers:
+        layer.trainable = False
+
+    y = Flatten()(model.output)
+
+    y = Dense(800, activation='relu')(y)
+    y = Dense(800, activation='relu')(y)
+    y = Dense(18, activation='softmax')(y)
+
+
+    model = Model(inputs=model.input, outputs=y)
+
     model.compile(loss="categorical_crossentropy",
                   optimizer=optimizers.SGD(
                       lr=args.lr, momentum=args.momentum),
                   metrics=["accuracy"])
+
+    es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=0, mode='auto')
 
     # 学習を実行。20%はテストに使用。
     history = model.fit_generator(
@@ -81,7 +102,8 @@ if __name__ == '__main__':
         steps_per_epoch=200,
         epochs=args.num_epochs,
         validation_data = validation_generator,
-        validation_steps=200
+        validation_steps=200,
+        callbacks=[es_cb]
     )
 
     # モデルの保存

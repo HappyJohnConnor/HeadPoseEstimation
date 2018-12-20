@@ -7,9 +7,9 @@ from keras.models import Model
 from keras.regularizers import l2
 from keras.optimizers import SGD
 import sys
-from inceptionModel import inception_model
+from .inceptionModel import inception_model
 
-def create_googlenet(img_size = 150, weights_path = None):
+def create_googlenet(img_size = 150):
     input = Input(shape=(img_size, img_size, 3))
 
     conv1_7x7_s2 = Conv2D(filters=64, kernel_size=(7, 7), strides=(2, 2), padding='same', activation='relu', kernel_regularizer=l2(0.01))(input)
@@ -30,19 +30,37 @@ def create_googlenet(img_size = 150, weights_path = None):
     inception_5b = inception_model(input=inception_5a, filters_1x1=384, filters_3x3_reduce=192, filters_3x3=384, filters_5x5_reduce=48, filters_5x5=128, filters_pool_proj=128)
     averagepool1_7x7_s1 = AveragePooling2D(pool_size=(7, 7), strides=(7, 7), padding='same')(inception_5b)
     drop1 = Dropout(rate=0.4)(averagepool1_7x7_s1)
-    linear = Dense(units=18, activation="softmax", kernel_regularizer=l2(0.01))(keras.layers.core.Flatten()(drop1))
+    linear = Dense(units=1000, activation="softmax", kernel_regularizer=l2(0.01))(keras.layers.core.Flatten()(drop1))
     last = linear
 
     model = Model(inputs=input, outputs=last)
-    if weights_path:
-        model.load_weights(weights_path, by_name=True)
     
     return model
 
 
+def create_mymodel(classes, weight_path, img_size = 150):
+    """
+    fine tuning google net
+    """
+    model = create_googlenet(img_size = img_size)
+    if weight_path:
+        #model.load_weights(weights_path, by_name=True, skip_mismatch=True)
+        model.load_weights(weight_path)
+
+    # 最後の畳み込み層より前の層の再学習を防止
+    for layer in model.layers:
+        layer.trainable = False
+        
+    x = model.output
+    x = Flatten()(x) # 入力を平滑化する
+    x = Dense(1024, activation='relu')(x) # 全結合ニューラルネットワークレイヤー
+    predictions = Dense(classes, activation='softmax')(x)
+    model = Model(inputs=model.input, outputs=predictions)
+
+    return model
+    
 
 if __name__ == '__main__':
-    model = create_googlenet(
-        weights_path='googlenet_weights.h5')
+    model = create_mymodel(classes = 18, weight_path = 'googlenet_weights.h5')
     model.summary()
     
