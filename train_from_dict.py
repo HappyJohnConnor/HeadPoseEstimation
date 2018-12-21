@@ -16,22 +16,23 @@ from PIL import Image
 from model import googlenet2
 import utils_for_keras
 
+
 def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(
         description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--num_epochs', dest='num_epochs', help='Maximum number of training epochs.',
-                        default = 100, type=int)
+                        default=100, type=int)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
-                        default = 128, type=int)
+                        default=128, type=int)
     parser.add_argument('--lr', dest='lr', help='Base learning rate.',
                         default=0.001, type=float)
     parser.add_argument('--momentum', dest='momentum', help='',
-                        default = 0.9, type=float)
+                        default=0.9, type=float)
     parser.add_argument('--model_name', dest='model_name',
                         help='String appended to output model.', default='my_model', type=str)
     parser.add_argument('--outcome_name', dest='outcome_name', help='String appended to output outcome.',
-                        default = 'my_outcome', type=str)
+                        default='my_outcome', type=str)
 
     args = parser.parse_args()
     return args
@@ -55,21 +56,21 @@ if __name__ == '__main__':
     dataset_path = './dataset/divided/'
     img_size = 150
     train_generator = train_datagen.flow_from_directory(
-            dataset_path + 'train',
-            target_size=(img_size, img_size),
-            batch_size= args.batch_size,
-            class_mode='categorical')
+        dataset_path + 'train',
+        target_size=(img_size, img_size),
+        batch_size=args.batch_size,
+        class_mode='categorical')
 
     validation_generator = val_datagen.flow_from_directory(
-            dataset_path + 'valid',
-            target_size=(img_size, img_size),
-            batch_size= args.batch_size,
-            class_mode='categorical')
+        dataset_path + 'valid',
+        target_size=(img_size, img_size),
+        batch_size=args.batch_size,
+        class_mode='categorical')
 
     # モデルをコンパイル
     model = googlenet2.create_googlenet(
-        img_size = img_size,
-        weights_path = './model/googlenet_weights.h5')
+        img_size=img_size,
+        weights_path='./model/googlenet_weights.h5')
     model.compile(loss="categorical_crossentropy",
                   optimizer=optimizers.SGD(
                       lr=args.lr, momentum=args.momentum),
@@ -77,10 +78,10 @@ if __name__ == '__main__':
 
     # 学習を実行。20%はテストに使用。
     history = model.fit_generator(
-        train_generator, 
+        train_generator,
         steps_per_epoch=200,
         epochs=args.num_epochs,
-        validation_data = validation_generator,
+        validation_data=validation_generator,
         validation_steps=200
     )
 

@@ -25,7 +25,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--num_epochs', dest='num_epochs', help='Maximum number of training epochs.',
-                        default = 100, type=int)
+                        default = 200, type=int)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
                         default = 128, type=int)
     parser.add_argument('--lr', dest='lr', help='Base learning rate.',
@@ -58,16 +58,22 @@ if __name__ == '__main__':
 
     dataset_path = './dataset/divided/'
     img_size = 150
+    classes = ['-10', '-20', '-30', '-40', '-50', '-60', '-70', \
+                '-80', '-90', '0', '10', '20', '30', '40', '50', '60', '70', '80']
     train_generator = train_datagen.flow_from_directory(
             dataset_path + 'train',
             target_size=(img_size, img_size),
             batch_size= args.batch_size,
+            #classes = classes,
             class_mode='categorical')
+     
+    print(train_generator.class_indices)
 
     validation_generator = val_datagen.flow_from_directory(
             dataset_path + 'valid',
             target_size=(img_size, img_size),
             batch_size= args.batch_size,
+            #classes = classes,
             class_mode='categorical')
 
     # モデルをコンパイル
