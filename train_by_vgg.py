@@ -113,7 +113,8 @@ if __name__ == '__main__':
     )
 
     # モデルの保存
-    model_save_path = './model/output'
+    model_save_path = './model/output/1/'
+    os.makedirs(model_save_path, exist_ok=True)
     model.save_weights(os.path.join(
         model_save_path, args.model_name + '.hdf5'))
 
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     plt.plot(epochs, val_acc, "b", label="Validation acc")
     plt.title("Training and Validation accuracy")
     plt.legend()
-    plt.savefig("acc.png")
+    plt.savefig(model_save_path + "acc.png")
     plt.close()
 
     # plot loss
@@ -139,5 +140,5 @@ if __name__ == '__main__':
     plt.plot(epochs, val_loss, "b", label="Validation loss")
     plt.title("Training and Validation loss")
     plt.legend()
-    plt.savefig("loss.png")
+    plt.savefig(model_save_path + "loss.png")
     plt.close()
