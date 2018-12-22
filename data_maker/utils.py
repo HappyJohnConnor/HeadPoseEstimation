@@ -5,6 +5,16 @@ import os
 import scipy.io as sio
 from PIL import Image
 
+
+def get_matpath(img_path):
+    file_path, file_name = os.path.split(img_path)
+    name_ls = file_name.split('.')
+    new_name = name_ls[0]+'.mat'
+    mat_path = file_path + '/' + new_name
+
+    return mat_path
+
+
 def get_degree_from_mat(mat_path):
     # Get yaw, pitch, roll from .mat annotation.
     # They are in radians
@@ -26,7 +36,7 @@ def get_pt2d_from_mat(mat_path):
     # Get 2D landmarks
     mat = sio.loadmat(mat_path)
     pt2d = mat['pt2d']
-    
+
     return pt2d
 
 

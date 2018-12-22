@@ -12,9 +12,9 @@ from PIL import Image
 
 def split_300w():
     # フォルダを生成
-    train_path = './dataset/divided/train/'
+    train_path = '../dataset/divided/train/'
     os.makedirs(train_path, exist_ok=True)
-    valid_path = './dataset/divided/valid/'
+    valid_path = '../dataset/divided/valid/'
     os.makedirs(valid_path, exist_ok=True)
 
     # 10度づつに分割
@@ -27,39 +27,46 @@ def split_300w():
         # train folder
         train_dir = os.path.join(train_path, str(folder_name))
         train_dict[degree] = train_dir
-        os.makedirs(train_dir, exist_ok = True)
-        
+        os.makedirs(train_dir, exist_ok=True)
+
         # validation folder
         valid_dir = os.path.join(valid_path, str(folder_name))
         valid_dict[degree] = valid_dir
-        os.makedirs(valid_dir, exist_ok = True)
-        
+        os.makedirs(valid_dir, exist_ok=True)
+
         degree += 10
 
-
-    dir_path_ls = ['AFW', 'HELEN', 'IBUG', 'LFPW']
+    """
+    dir_path_ls = ['AFW', 'AFW_Flip',
+                   'HELEN', 'HELEN_Flip',
+                   'IBUG', 'IBUG_Flip',
+                   'LFPW', 'LFPW_Flip']
+    """
     degree_th = 10
-    # dir_path_ls = ['AFW']
-    dataset_path =  '../pose_estimation/dataset/train/300W_LP'
+    dir_path_ls = ['AFW']
+    dataset_path = '../../dataset/300W_LP'
+
     for each_dir in dir_path_ls:
         dir_path = os.path.join(dataset_path, each_dir)
-        mat_files = glob.glob(dir_path+'/*.mat')
         jpg_images = glob.glob(dir_path+'/*.jpg')
 
-        for mat_file, jpg_imgae in zip(mat_files, jpg_images):
+        for jpg_imgae in jpg_images:
+            mat_file = utils.get_matpath(jpg_imgae)
             pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
-            
+
             if abs(pitch) <= degree_th and abs(roll) <= degree_th:
                 # ファイル名を取得
                 file_name = os.path.basename(jpg_imgae)
                 random_dir = np.random.choice(
                     # 20%
-                    [train_dict[int(yaw - yaw % 10)], valid_dict[int(yaw - yaw % 10)]], 
+                    [train_dict[int(yaw - yaw % 10)],
+                     valid_dict[int(yaw - yaw % 10)]],
                     p=[0.8, 0.2]
                 )
                 save_path = os.path.join(random_dir, file_name)
                 img = utils.crop_image(mat_file, jpg_imgae)
                 img.save(save_path)
+
 
 def split_AFLW(test_path, dataset_path):
     """
@@ -74,22 +81,22 @@ def split_AFLW(test_path, dataset_path):
         folder_name = degree
         test_dir = os.path.join(test_path, str(folder_name))
         test_dict[degree] = test_dir
-        os.makedirs(test_dir, exist_ok = True)
-        
+        os.makedirs(test_dir, exist_ok=True)
+
         degree += 10
 
     degree_th = 10
-    mat_files = glob.glob(dataset_path +'/*.mat')
-    jpg_images = glob.glob(dataset_path +'/*.jpg')
+    jpg_images = glob.glob(dataset_path + '/*.jpg')
 
-    for mat_file, jpg_imgae in zip(mat_files, jpg_images):
+    for jpg_imgae in jpg_images:
+        mat_file = utils.get_matpath(jpg_imgae)
         pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
-        
+
         if abs(pitch) <= degree_th and abs(roll) <= degree_th:
             # ファイル名を取得
             file_name = os.path.basename(jpg_imgae)
             save_path = os.path.join(
-                test_dict[int(yaw - yaw % 10)], 
+                test_dict[int(yaw - yaw % 10)],
                 file_name
             )
             img = utils.crop_image(mat_file, jpg_imgae)
@@ -102,6 +109,4 @@ if __name__ == '__main__':
         test_path = '../dataset/divided/test/',
         dataset_path = '../../dataset/AFLW2000')
     """
-    split_300w(
-        test_path = '../dataset/divided/test/',
-        dataset_path = '../../dataset/300W_LP')
+    split_300w()
