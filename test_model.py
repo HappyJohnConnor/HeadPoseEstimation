@@ -1,3 +1,4 @@
+import argparse
 import glob
 from data_maker import utils
 import numpy as np
@@ -11,9 +12,18 @@ from PIL import Image
 from data_maker import utils
 
 #from model import googlenet2
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='Head pose estimation using the Hopenet network.')
+    parser.add_argument('--model_path', dest='model_path',
+                        help='String appended to output model.', default='1', type=str)
+    args = parser.parse_args()
+    return args
+
 
 if __name__ == '__main__':
-    weight_path = './model/output/my_model.hdf5'
+    args = parse_args()
+    weight_path = './model/output/' + args.model_path +  '/my_model.hdf5'
     dataset_path = '../dataset/AFLW2000'
 
     img_size = 150
@@ -40,15 +50,18 @@ if __name__ == '__main__':
 
     positive_num = 0
     test_count = 0
+    correct_count  = 0
     degree_th = 10
 
-    mat_files = glob.glob(dataset_path + '/*.mat')
-    jpg_images = glob.glob(dataset_path + '/*.jpg')
+    diff_ls = []
 
     np_degree = np.array([-10, -20, -30, -40, -50, -60, -
                           70, -80, -90, 0, 10, 20, 30, 40, 50, 60, 70, 80])
-    print(np_degree)
-    for mat_file, jpg_image in zip(mat_files, jpg_images):
+
+    jpg_images = glob.glob(dataset_path + '/*.jpg')
+
+    for jpg_image in jpg_images:
+        mat_file = utils.get_matpath(jpg_image)
         pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
 
         if abs(pitch) <= degree_th and abs(roll) <= degree_th:
@@ -61,12 +74,25 @@ if __name__ == '__main__':
             img_nad = np.expand_dims(img_nad, axis=0)
             results = model.predict(img_nad)
             # 最大値を返す
-            #max_idx = results[0].argmax()
-            print(type(results))
-            print('test count : %d' % test_count)
-            #print('degree : %d' % np_degree(max_idx))
-            print('result : ' + str(np.dot(np_degree, results[0])))
-            print('correct : ' + str(yaw))
+            max_idx = results[0].argmax()
+            if np_degree[max_idx] == int(yaw- yaw % 10):
+                correct_count += 1
 
+            diff_ls.append(abs(yaw - np.dot(np_degree, results[0])))
+            
+            print('----------------------')
+            print('test count : %d' % test_count)
+            print('correct   degree : %d' % yaw)
+            print('predicted degree : %d' % np_degree[max_idx])
+            print('average   degree : %d' % (np.dot(np_degree, results[0])))
+            print('correct count : %d' % correct_count)
+            
+            """
             if test_count == 10:
                 break
+            """
+     
+    diff_np = np.array(diff_ls)
+    print('standard deviation : %.2f' % np.std(diff_np))
+     
+

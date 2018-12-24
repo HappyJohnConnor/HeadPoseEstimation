@@ -34,9 +34,8 @@ def parse_args():
                         default = 0.9, type=float)
     parser.add_argument('--model_name', dest='model_name',
                         help='String appended to output model.', default='my_model', type=str)
-    parser.add_argument('--outcome_name', dest='outcome_name', help='String appended to output outcome.',
-                        default = 'my_outcome', type=str)
-
+    parser.add_argument('--output', dest='output_folder', 
+                        help='Folder name.', type=str)
     args = parser.parse_args()
     return args
 
@@ -46,25 +45,17 @@ if __name__ == '__main__':
 
     train_datagen = ImageDataGenerator(
         rescale=1./255,
-        rotation_range=40,
-        width_shift_range=0.2,
-        height_shift_range=0.2,
-        shear_range=0.2,
         zoom_range=0.2,
-        horizontal_flip=True,
         preprocessing_function=utils_for_keras.get_random_eraser(v_l=0, v_h=1, pixel_level=False))
 
     val_datagen = ImageDataGenerator(rescale=1./255)
 
     dataset_path = './dataset/divided/'
     img_size = 150
-    classes = ['-10', '-20', '-30', '-40', '-50', '-60', '-70', \
-                '-80', '-90', '0', '10', '20', '30', '40', '50', '60', '70', '80']
     train_generator = train_datagen.flow_from_directory(
             dataset_path + 'train',
             target_size=(img_size, img_size),
             batch_size= args.batch_size,
-            #classes = classes,
             class_mode='categorical')
      
     print(train_generator.class_indices)
@@ -73,7 +64,6 @@ if __name__ == '__main__':
             dataset_path + 'valid',
             target_size=(img_size, img_size),
             batch_size= args.batch_size,
-            #classes = classes,
             class_mode='categorical')
 
     # モデルをコンパイル
@@ -113,7 +103,7 @@ if __name__ == '__main__':
     )
 
     # モデルの保存
-    model_save_path = './model/output/1/'
+    model_save_path = './model/output/' + args.output_folder + '/'
     os.makedirs(model_save_path, exist_ok=True)
     model.save_weights(os.path.join(
         model_save_path, args.model_name + '.hdf5'))
