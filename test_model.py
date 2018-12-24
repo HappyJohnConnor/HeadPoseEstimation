@@ -48,7 +48,8 @@ if __name__ == '__main__':
     np_degree = np.array([-10, -20, -30, -40, -50, -60, -
                           70, -80, -90, 0, 10, 20, 30, 40, 50, 60, 70, 80])
     print(np_degree)
-    for mat_file, jpg_image in zip(mat_files, jpg_images):
+    for jpg_image in jpg_images:
+        mat_file = utils.get_matpath(jpg_image)
         pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
 
         if abs(pitch) <= degree_th and abs(roll) <= degree_th:
@@ -61,7 +62,7 @@ if __name__ == '__main__':
             img_nad = np.expand_dims(img_nad, axis=0)
             results = model.predict(img_nad)
             # 最大値を返す
-            #max_idx = results[0].argmax()
+            max_idx = results[0].argmax()
             print(type(results))
             print('test count : %d' % test_count)
             #print('degree : %d' % np_degree(max_idx))
