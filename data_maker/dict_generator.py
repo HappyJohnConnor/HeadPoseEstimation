@@ -36,14 +36,12 @@ def split_300w():
 
         degree += 10
 
-    """
     dir_path_ls = ['AFW', 'AFW_Flip',
                    'HELEN', 'HELEN_Flip',
                    'IBUG', 'IBUG_Flip',
                    'LFPW', 'LFPW_Flip']
-    """
     degree_th = 10
-    dir_path_ls = ['AFW']
+    #dir_path_ls = ['AFW']
     dataset_path = '../../dataset/300W_LP'
 
     for each_dir in dir_path_ls:
@@ -55,6 +53,7 @@ def split_300w():
             pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
 
             if abs(pitch) <= degree_th and abs(roll) <= degree_th:
+                print(each_dir)
                 # ファイル名を取得
                 file_name = os.path.basename(jpg_imgae)
                 random_dir = np.random.choice(
