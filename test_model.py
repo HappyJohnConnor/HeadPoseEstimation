@@ -3,6 +3,7 @@ import glob
 from data_maker import utils
 import numpy as np
 
+from matplotlib import pylab as plt
 from keras.applications.vgg16 import VGG16
 from keras.models import Model, load_model
 from keras.layers import Activation, Dense, Dropout, Input, Flatten
@@ -24,6 +25,7 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     weight_path = './model/output/' + args.model_path +  '/my_model.hdf5'
+    
     dataset_path = '../dataset/AFLW2000'
 
     img_size = 150
@@ -45,7 +47,7 @@ if __name__ == '__main__':
     y = Dense(800, activation='relu')(y)
     y = Dense(18, activation='softmax')(y)
 
-    model = Model(inputs=model.input, outputs=y)
+    model = Model(model.input, y)
     model.load_weights(weight_path)
 
     positive_num = 0
@@ -67,7 +69,9 @@ if __name__ == '__main__':
         if abs(pitch) <= degree_th and abs(roll) <= degree_th:
             test_count += 1
             img = utils.crop_image(mat_file, jpg_image)
+            img.show()
             img = img_to_array(img.resize((img_size, img_size)))
+            
             # 0-1に変換
             img_nad = img/255
             # 4次元配列に
@@ -88,11 +92,23 @@ if __name__ == '__main__':
             print('correct count : %d' % correct_count)
             
             """
-            if test_count == 10:
+            if test_count == 3:
                 break
             """
+            
      
     diff_np = np.array(diff_ls)
     print('standard deviation : %.2f' % np.std(diff_np))
+    print('mean               : %.2f' % np.mean(diff_np))
+
+    hist, bins = np.histogram(diff_np, bins=18)
+
+    # -90〜90までplot
+    plt.hist(diff_np, bins = 36)
+    plt.xlim(0, 180)
+    plt.xlabel("degree")
+    plt.ylabel('number')
+    plt.savefig("hoge.png")
+
      
 

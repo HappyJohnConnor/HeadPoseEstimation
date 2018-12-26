@@ -86,11 +86,10 @@ if __name__ == '__main__':
     model = Model(inputs=model.input, outputs=y)
 
     model.compile(loss="categorical_crossentropy",
-                  optimizer=optimizers.SGD(
-                      lr=args.lr, momentum=args.momentum),
+                  optimizer=optimizers.Adam(lr=args.lr),
                   metrics=["accuracy"])
 
-    es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=0, mode='auto')
+    es_cb = EarlyStopping(monitor='val_loss', verbose=0, mode='auto')
 
     # 学習を実行。20%はテストに使用。
     history = model.fit_generator(
