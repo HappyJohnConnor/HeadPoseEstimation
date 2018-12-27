@@ -60,6 +60,9 @@ if __name__ == '__main__':
     np_degree = np.array([-10, -20, -30, -40, -50, -60, -
                           70, -80, -90, 0, 10, 20, 30, 40, 50, 60, 70, 80])
 
+    np_degree_5 = np.array([-5, -15, -25, -35, -45, -55, -
+                          65, -75, -85, 5, 15, 25, 35, 45, 55, 65, 75, 85])
+
     jpg_images = glob.glob(dataset_path + '/*.jpg')
 
     for jpg_image in jpg_images:
@@ -88,7 +91,7 @@ if __name__ == '__main__':
             print('test count : %d' % test_count)
             print('correct   degree : %d' % yaw)
             print('predicted degree : %d' % np_degree[max_idx])
-            print('average   degree : %d' % (np.dot(np_degree, results[0])))
+            print('average   degree : %d' % (np.dot(np_degree_5, results[0])))
             print('correct count : %d' % correct_count)
             
             """
