@@ -1,4 +1,8 @@
+from keras.applications.vgg16 import VGG16
+from keras.layers import Activation, Dense, Dropout, Input, Flatten
+from keras.models import Model, load_model
 import numpy as np
+
 
 def get_random_eraser(p=0.5, s_l=0.02, s_h=0.4, r_1=0.3, r_2=1/0.3, v_l=0, v_h=255, pixel_level=False):
     def eraser(input_img):
@@ -29,3 +33,25 @@ def get_random_eraser(p=0.5, s_l=0.02, s_h=0.4, r_1=0.3, r_2=1/0.3, v_l=0, v_h=2
         return input_img
 
     return eraser
+
+
+# モデルを返す
+def get_model(weight_path, img_size=150):
+    # モデルのロード
+    model = VGG16(
+        include_top=False,
+        input_tensor=Input(shape=(img_size, img_size, 3))
+    )
+
+    y = Flatten()(model.output)
+
+    y = Dense(800, activation='relu')(y)
+    y = Dense(800, activation='relu')(y)
+    y = Dense(18, activation='softmax')(y)
+
+    model = Model(model.input, y)
+
+    if weight_path:
+        model.load_weights(weight_path)
+
+    return model
