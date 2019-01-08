@@ -46,8 +46,8 @@ if __name__ == '__main__':
     jpg_images = glob.glob(dataset_path + '/*.jpg')
 
     # load csv file to numpy
-    result_np = np.loadtxt('./model/output/'+ args.model_path + '/result_np_val.csv', delimiter=",")
-    true_np = np.loadtxt('./model/output/'+ args.model_path +'/true_np_val.csv', delimiter=",")
+    result_np = np.loadtxt('./model/output/'+ args.model_path + '/result_np.csv', delimiter=",")
+    true_np = np.loadtxt('./model/output/'+ args.model_path +'/true_np.csv', delimiter=",")
     # calculate x
     process_np = np.dot(result_np.T, result_np)
     # reverse
@@ -74,8 +74,8 @@ if __name__ == '__main__':
             if np_degree[max_idx] == int(yaw - yaw % 10):
                 correct_count += 1
 
-            diff_ls.append(abs(yaw - np.dot(optical_coef, results[0])))            
-            #diff_ls.append(abs(yaw - np.dot(np_degree_5, results[0])))
+            #diff_ls.append(abs(yaw - np.dot(optical_coef, results[0])))            
+            diff_ls.append(abs(yaw - np.dot(np_degree_5, results[0])))
                         
             print('----------------------')
             print('test count : %d' % test_count)
@@ -96,9 +96,6 @@ if __name__ == '__main__':
 
     hist, bins = np.histogram(diff_np, bins=18)
 
-    print(result_np.shape)
-    print(true_np.shape)
-    print(optical_coef)
     # -90〜90までplot
     plt.hist(diff_np, bins=36)
     plt.xlim(0, 180)
