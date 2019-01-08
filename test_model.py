@@ -71,7 +71,7 @@ if __name__ == '__main__':
             if np_degree[max_idx] == int(yaw - yaw % 10):
                 correct_count += 1
 
-            #diff_ls.append(abs(yaw - np.dot(optical_coef, results[0])))
+            # diff_ls.append(abs(yaw - np.dot(optical_coef, results[0])))
             diff_ls.append(abs(yaw - np.dot(np_degree_5, results[0])))
 
             print('----------------------')
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             print('correct   degree : %d' % yaw)
             print('predicted degree : %d' % np_degree[max_idx])
             print('average   degree : %d' % (np.dot(optical_coef, results[0])))
-            #print('average   degree : %d' % (np.dot(np_degree_5, results[0])))
+            # print('average   degree : %d' % (np.dot(np_degree_5, results[0])))
             print('correct count : %d' % correct_count)
 
             """
