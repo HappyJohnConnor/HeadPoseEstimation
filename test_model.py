@@ -4,14 +4,9 @@ from data_maker import utils
 import numpy as np
 
 from matplotlib import pylab as plt
-from keras.applications.vgg16 import VGG16
-from keras.models import Model, load_model
-from keras.layers import Activation, Dense, Dropout, Input, Flatten
-from keras.preprocessing.image import img_to_array, load_img
-from PIL import Image
-
-from data_maker import utils
+from keras.preprocessing.image import img_to_array
 import utils_for_keras
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -46,15 +41,17 @@ if __name__ == '__main__':
     jpg_images = glob.glob(dataset_path + '/*.jpg')
 
     # load csv file to numpy
-    result_np = np.loadtxt('./model/output/'+ args.model_path + '/result_np.csv', delimiter=",")
-    true_np = np.loadtxt('./model/output/'+ args.model_path +'/true_np.csv', delimiter=",")
+    result_np = np.loadtxt('./model/output/' +
+                           args.model_path + '/result_np.csv', delimiter=",")
+    true_np = np.loadtxt('./model/output/' +
+                         args.model_path + '/true_np.csv', delimiter=",")
     # calculate x
     process_np = np.dot(result_np.T, result_np)
     # reverse
     process_np = np.linalg.inv(process_np)
     process_np = np.dot(process_np, result_np.T)
     optical_coef = np.dot(process_np, true_np)
-    
+
     for jpg_image in jpg_images:
         mat_file = utils.get_matpath(jpg_image)
         pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
@@ -74,9 +71,9 @@ if __name__ == '__main__':
             if np_degree[max_idx] == int(yaw - yaw % 10):
                 correct_count += 1
 
-            #diff_ls.append(abs(yaw - np.dot(optical_coef, results[0])))            
+            #diff_ls.append(abs(yaw - np.dot(optical_coef, results[0])))
             diff_ls.append(abs(yaw - np.dot(np_degree_5, results[0])))
-                        
+
             print('----------------------')
             print('test count : %d' % test_count)
             print('correct   degree : %d' % yaw)
