@@ -1,21 +1,15 @@
 import argparse
-import glob
 import numpy as np
 import os
-
-from matplotlib import pylab as plt
-from keras.applications.vgg16 import VGG16
-from keras.models import Model, load_model
-from keras.layers import Activation, Dense, Dropout, Input, Flatten
-from keras.preprocessing.image import img_to_array, load_img
+from keras.preprocessing.image import img_to_array
 from pathlib import Path
-from PIL import Image
 
 from data_maker import utils
 import utils_for_keras
 
+
 def get_matpath(img_path):
-    base_path  = './dataset/mat'
+    base_path = './dataset/mat'
     _, file_name = os.path.split(img_path)
     name_ls = file_name.split('.')
     new_name = name_ls[0]+'.mat'
@@ -32,12 +26,13 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+
 if __name__ == '__main__':
     args = parse_args()
     weight_path = './model/output/' + args.model_path + '/my_model.hdf5'
     img_size = 150
     model = utils_for_keras.get_model(weight_path=weight_path)
-    
+
     # Pathオブジェクトを生成
     base_path = Path("./dataset/divided/valid/")
     path_ls = list(base_path.glob("**/*.jpg"))
@@ -76,6 +71,4 @@ if __name__ == '__main__':
     tmp_np = np.linalg.inv(tmp_np)
     tmp_np = np.dot(tmp_np, result_np.T)
     x_np = np.dot(tmp_np, true_np)
-    np.savetxt(save_path + 'x_np.csv', tmp_np,delimiter=',')
-
-
+    np.savetxt(save_path + 'x_np.csv', tmp_np, delimiter=',')
