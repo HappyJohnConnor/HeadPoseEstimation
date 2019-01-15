@@ -104,7 +104,7 @@ def split_AFLW(test_path, dataset_path):
 
 if __name__ == '__main__':
     split_AFLW(
-        test_path='../dataset/divided/test/',
+        test_path='../dataset/yaw/test/',
         dataset_path='../../dataset/AFLW2000')
     """
     split_300w()

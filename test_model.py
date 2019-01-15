@@ -13,6 +13,10 @@ def parse_args():
         description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--model_path', dest='model_path',
                         help='String appended to output model.', default='1', type=str)
+    parser.add_argument('--direction', dest='direction', default='yaw', type=str)
+    parser.add_argument('--output_num', dest='output_num', default=18, type=int)
+    parser.add_argument('--output_folder', dest='output_folder',
+                        help='Folder name.', type=str)
     args = parser.parse_args()
     return args
 
@@ -22,8 +26,8 @@ if __name__ == '__main__':
     dataset_path = '../dataset/AFLW2000'
 
     img_size = 150
-    weight_path = './model/output/' + args.model_path + '/my_model.hdf5'
-    model = utils_for_keras.get_model(weight_path=weight_path)
+    weight_path = './model/output/' + args.direction + '/' + args.output_folder + '/my_model.hdf5'
+    model = utils_for_keras.get_model(weight_path=weight_path, output_num = args.output_num)
 
     positive_num = 0
     test_count = 0

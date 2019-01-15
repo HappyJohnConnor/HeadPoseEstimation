@@ -54,17 +54,18 @@ def split_300w_pitch():
             pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
 
             print(each_dir)
-            # ファイル名を取得
-            file_name = os.path.basename(jpg_imgae)
-            random_dir = np.random.choice(
-                # 20%
-                [train_dict[int(pitch - pitch % 10)],
-                    valid_dict[int(pitch - pitch % 10)]],
-                p=[0.8, 0.2]
-            )
-            save_path = os.path.join(random_dir, file_name)
-            img = utils.crop_image(mat_file, jpg_imgae)
-            img.save(save_path)
+            if abs(pitch) <= 90:
+                # ファイル名を取得
+                file_name = os.path.basename(jpg_imgae)
+                random_dir = np.random.choice(
+                    # 20%
+                    [train_dict[int(pitch - pitch % 10)],
+                        valid_dict[int(pitch - pitch % 10)]],
+                    p=[0.8, 0.2]
+                )
+                save_path = os.path.join(random_dir, file_name)
+                img = utils.crop_image(mat_file, jpg_imgae)
+                img.save(save_path)
 
 
 def split_AFLW(test_path, dataset_path):
@@ -91,11 +92,11 @@ def split_AFLW(test_path, dataset_path):
         mat_file = utils.get_matpath(jpg_imgae)
         pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
 
-        if abs(pitch) <= degree_th and abs(roll) <= degree_th:
+        if abs(pitch) <= 90:
             # ファイル名を取得
             file_name = os.path.basename(jpg_imgae)
             save_path = os.path.join(
-                test_dict[int(yaw - yaw % 10)],
+                test_dict[int(pitch - pitch % 10)],
                 file_name
             )
             img = utils.crop_image(mat_file, jpg_imgae)
@@ -105,7 +106,7 @@ def split_AFLW(test_path, dataset_path):
 if __name__ == '__main__':
     """
     split_AFLW(
-        test_path='../dataset/divided/test/',
+        test_path='../dataset/pitch/test/',
         dataset_path='../../dataset/AFLW2000')
     """
     split_300w_pitch()

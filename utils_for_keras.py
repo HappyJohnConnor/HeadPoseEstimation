@@ -36,18 +36,23 @@ def get_random_eraser(p=0.5, s_l=0.02, s_h=0.4, r_1=0.3, r_2=1/0.3, v_l=0, v_h=2
 
 
 # モデルを返す
-def get_model(weight_path, img_size=150):
+def get_model(weight_path, img_size=150, output_num = 18):
     # モデルのロード
     model = VGG16(
+        weights='imagenet',
         include_top=False,
         input_tensor=Input(shape=(img_size, img_size, 3))
     )
+
+    # 最後の畳み込み層より前の層の再学習を防止
+    for layer in model.layers:
+        layer.trainable = False
 
     y = Flatten()(model.output)
 
     y = Dense(800, activation='relu')(y)
     y = Dense(800, activation='relu')(y)
-    y = Dense(18, activation='softmax')(y)
+    y = Dense(output_num, activation='softmax')(y)
 
     model = Model(model.input, y)
 

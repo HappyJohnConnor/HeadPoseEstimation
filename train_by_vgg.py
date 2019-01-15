@@ -27,13 +27,13 @@ def parse_args():
                         default=200, type=int)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
                         default=128, type=int)
+    parser.add_argument('--direction', dest='direction', default='yaw', type=str)
+    parser.add_argument('--output_num', dest='output_num', default=18, type=int)
     parser.add_argument('--lr', dest='lr', help='Base learning rate.',
                         default=0.001, type=float)
     parser.add_argument('--momentum', dest='momentum', help='',
                         default=0.9, type=float)
-    parser.add_argument('--model_name', dest='model_name',
-                        help='String appended to output model.', default='my_model', type=str)
-    parser.add_argument('--output', dest='output_folder',
+    parser.add_argument('--output_folder', dest='output_folder',
                         help='Folder name.', type=str)
     args = parser.parse_args()
     return args
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     val_datagen = ImageDataGenerator(rescale=1./255)
 
-    dataset_path = './dataset/divided/'
+    dataset_path = './dataset/'+ args.direction + '/'
     img_size = 150
     train_generator = train_datagen.flow_from_directory(
         dataset_path + 'train',
@@ -64,24 +64,14 @@ if __name__ == '__main__':
         target_size=(img_size, img_size),
         batch_size=args.batch_size,
         class_mode='categorical')
-
-    # モデルをコンパイル
-    model = VGG16(weights='imagenet',
-                  include_top=False,
-                  input_tensor=Input(shape=(img_size, img_size, 3))
-                  )
-
-    # 最後の畳み込み層より前の層の再学習を防止
-    for layer in model.layers:
-        layer.trainable = False
-
-    y = Flatten()(model.output)
-
-    y = Dense(800, activation='relu')(y)
-    y = Dense(800, activation='relu')(y)
-    y = Dense(18, activation='softmax')(y)
-
-    model = Model(inputs=model.input, outputs=y)
+    
+    img_size = 150
+    weight_path = './model/output/' + args.model_path + '/my_model.hdf5'
+    model = utils_for_keras.get_model(
+        weight_path=weight_path,
+        img_size = img_size,
+        output_num = args.output_num
+    )
 
     model.compile(loss="categorical_crossentropy",
                   optimizer=optimizers.Adam(lr=args.lr),
@@ -89,7 +79,6 @@ if __name__ == '__main__':
 
     es_cb = EarlyStopping(monitor='val_loss', verbose=0, mode='auto')
 
-    # 学習を実行。20%はテストに使用。
     history = model.fit_generator(
         train_generator,
         steps_per_epoch=200,
@@ -100,13 +89,12 @@ if __name__ == '__main__':
     )
 
     # モデルの保存
-    model_save_path = './model/output/' + args.output_folder + '/'
+    model_save_path = './model/output/' + args.direction + '/' + args.output_folder + '/'
     os.makedirs(model_save_path, exist_ok=True)
     model.save_weights(os.path.join(
-        model_save_path, args.model_name + '.hdf5'))
+        model_save_path, 'my_model.hdf5'))
 
     # Plot accuracy &amp; loss
-
     acc = history.history["acc"]
     val_acc = history.history["val_acc"]
     loss = history.history["loss"]
