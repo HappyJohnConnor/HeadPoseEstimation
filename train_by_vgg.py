@@ -66,9 +66,7 @@ if __name__ == '__main__':
         class_mode='categorical')
     
     img_size = 150
-    weight_path = './model/output/' + args.model_path + '/my_model.hdf5'
     model = utils_for_keras.get_model(
-        weight_path=weight_path,
         img_size = img_size,
         output_num = args.output_num
     )

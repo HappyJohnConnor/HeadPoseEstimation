@@ -44,11 +44,10 @@ if __name__ == '__main__':
 
     jpg_images = glob.glob(dataset_path + '/*.jpg')
 
+    model_path = './model/output/' + args.direction + '/'+ args.output_folder +'/'
     # load csv file to numpy
-    result_np = np.loadtxt('./model/output/' +
-                           args.model_path + '/result_np.csv', delimiter=",")
-    true_np = np.loadtxt('./model/output/' +
-                         args.model_path + '/true_np.csv', delimiter=",")
+    result_np = np.loadtxt(model_path +'result_np.csv', delimiter=",")
+    true_np = np.loadtxt(model_path + 'true_np.csv', delimiter=",")
     # calculate x
     process_np = np.dot(result_np.T, result_np)
     # reverse
@@ -102,4 +101,4 @@ if __name__ == '__main__':
     plt.xlim(0, 180)
     plt.xlabel("degree")
     plt.ylabel('number')
-    plt.savefig("hoge2.png")
+    plt.savefig(model_path + "hoge2.png")

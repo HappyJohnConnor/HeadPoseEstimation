@@ -21,20 +21,21 @@ def get_matpath(img_path):
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Head pose estimation using the Hopenet network.')
-    parser.add_argument('--model_path', dest='model_path',
+    parser.add_argument('--output_folder', dest='output_folder',
                         help='String appended to output model.', default='1', type=str)
+    parser.add_argument('--direction', dest='direction', default='yaw', type=str)
     args = parser.parse_args()
     return args
 
 
 if __name__ == '__main__':
     args = parse_args()
-    weight_path = './model/output/' + args.model_path + '/my_model.hdf5'
+    model_save_path = './model/output/' + args.direction + '/' + args.output_folder + '/'
     img_size = 150
     model = utils_for_keras.get_model(weight_path=weight_path)
 
     # Pathオブジェクトを生成
-    base_path = Path("./dataset/divided/valid/")
+    base_path = Path("./dataset/" + args.direction + "/train/")
     path_ls = list(base_path.glob("**/*.jpg"))
     result_ls = []
     true_ls = []
@@ -60,10 +61,9 @@ if __name__ == '__main__':
     result_np = np.array(result_ls)
     true_np = np.array(true_ls)
 
-    save_path = './model/output/' + args.model_path + '/'
     # save numpy as csv
-    np.savetxt(save_path + 'result_np_val.csv', result_np, delimiter=',')
-    np.savetxt(save_path + 'true_np_val.csv', true_np, delimiter=',')
+    np.savetxt(model_save_path + 'result_np_val.csv', result_np, delimiter=',')
+    np.savetxt(model_save_path + 'true_np_val.csv', true_np, delimiter=',')
 
     # calculate x
     tmp_np = np.dot(result_np.T, result_np)
