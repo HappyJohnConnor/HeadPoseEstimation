@@ -31,6 +31,7 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     model_save_path = './model/output/' + args.direction + '/' + args.output_folder + '/'
+    weight_path = model_save_path + 'my_model.hdf5'
     img_size = 150
     model = utils_for_keras.get_model(weight_path=weight_path)
 
@@ -62,8 +63,8 @@ if __name__ == '__main__':
     true_np = np.array(true_ls)
 
     # save numpy as csv
-    np.savetxt(model_save_path + 'result_np_val.csv', result_np, delimiter=',')
-    np.savetxt(model_save_path + 'true_np_val.csv', true_np, delimiter=',')
+    np.savetxt(model_save_path + 'result_np.csv', result_np, delimiter=',')
+    np.savetxt(model_save_path + 'true_np.csv', true_np, delimiter=',')
 
     # calculate x
     tmp_np = np.dot(result_np.T, result_np)
@@ -71,4 +72,4 @@ if __name__ == '__main__':
     tmp_np = np.linalg.inv(tmp_np)
     tmp_np = np.dot(tmp_np, result_np.T)
     x_np = np.dot(tmp_np, true_np)
-    np.savetxt(save_path + 'x_np.csv', tmp_np, delimiter=',')
+    np.savetxt(model_save_path + 'x_np.csv', tmp_np, delimiter=',')

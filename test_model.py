@@ -101,4 +101,4 @@ if __name__ == '__main__':
     plt.xlim(0, 180)
     plt.xlabel("degree")
     plt.ylabel('number')
-    plt.savefig(model_path + "hoge2.png")
+    plt.savefig(model_path + "test_hist.png")
