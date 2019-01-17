@@ -83,7 +83,7 @@ if __name__ == '__main__':
         epochs=args.num_epochs,
         validation_data=validation_generator,
         validation_steps=200,
-        callbacks=[es_cb]
+        #callbacks=[es_cb]
     )
 
     # モデルの保存

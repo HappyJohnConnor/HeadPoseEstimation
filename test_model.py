@@ -13,8 +13,10 @@ def parse_args():
         description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--model_path', dest='model_path',
                         help='String appended to output model.', default='1', type=str)
-    parser.add_argument('--direction', dest='direction', default='yaw', type=str)
-    parser.add_argument('--output_num', dest='output_num', default=18, type=int)
+    parser.add_argument('--direction', dest='direction',
+                        default='yaw', type=str)
+    parser.add_argument('--output_num', dest='output_num',
+                        default=18, type=int)
     parser.add_argument('--output_folder', dest='output_folder',
                         help='Folder name.', type=str)
     args = parser.parse_args()
@@ -26,13 +28,15 @@ if __name__ == '__main__':
     dataset_path = '../dataset/AFLW2000'
 
     img_size = 150
-    weight_path = './model/output/' + args.direction + '/' + args.output_folder + '/my_model.hdf5'
-    model = utils_for_keras.get_model(weight_path=weight_path, output_num = args.output_num)
+    weight_path = './model/output/' + args.direction + \
+        '/' + args.output_folder + '/my_model.hdf5'
+    model = utils_for_keras.get_model(
+        weight_path=weight_path, output_num=args.output_num)
 
     positive_num = 0
     test_count = 0
     correct_count = 0
-    degree_th = 10
+    degree_th = 90
 
     diff_ls = []
 
@@ -44,9 +48,9 @@ if __name__ == '__main__':
 
     jpg_images = glob.glob(dataset_path + '/*.jpg')
 
-    model_path = './model/output/' + args.direction + '/'+ args.output_folder +'/'
+    model_path = './model/output/' + args.direction + '/' + args.output_folder + '/'
     # load csv file to numpy
-    result_np = np.loadtxt(model_path +'result_np.csv', delimiter=",")
+    result_np = np.loadtxt(model_path + 'result_np.csv', delimiter=",")
     true_np = np.loadtxt(model_path + 'true_np.csv', delimiter=",")
     # calculate x
     process_np = np.dot(result_np.T, result_np)
@@ -55,50 +59,54 @@ if __name__ == '__main__':
     process_np = np.dot(process_np, result_np.T)
     optical_coef = np.dot(process_np, true_np)
 
+    designed_deg = None
     for jpg_image in jpg_images:
         mat_file = utils.get_matpath(jpg_image)
-        pitch, yaw, roll = utils.get_degree_from_mat(mat_file)
+        pitch_deg, yaw_deg, roll_deg = utils.get_degree_from_mat(mat_file)
+        if args.direction == 'pitch':
+            designed_deg = pitch_deg
+        elif args.direction == 'yaw':
+            designed_deg = yaw_deg
+        elif args.direction == 'roll':
+            designed_deg = roll_deg
 
-        if abs(pitch) <= degree_th and abs(roll) <= degree_th:
-            test_count += 1
-            img = utils.crop_image(mat_file, jpg_image)
-            img = img_to_array(img.resize((img_size, img_size)))
+        test_count += 1
+        img = utils.crop_image(mat_file, jpg_image)
+        img = img_to_array(img.resize((img_size, img_size)))
 
-            # 0-1に変換
-            img_nad = img/255
-            # 4次元配列に
-            img_nad = np.expand_dims(img_nad, axis=0)
-            results = model.predict(img_nad)
-            # 最大値を返す
-            max_idx = results[0].argmax()
-            if np_degree[max_idx] == int(yaw - yaw % 10):
-                correct_count += 1
+        # 0-1に変換
+        img_nad = img/255
+        # 4次元配列に
+        img_nad = np.expand_dims(img_nad, axis=0)
+        results = model.predict(img_nad)
+        # 最大値を返す
+        max_idx = results[0].argmax()
+        if np_degree[max_idx] == int(designed_deg - designed_deg % 10):
+            correct_count += 1
 
-            # diff_ls.append(abs(yaw - np.dot(optical_coef, results[0])))
-            diff_ls.append(abs(yaw - np.dot(np_degree_5, results[0])))
+        diff_ls.append(
+            abs(designed_deg - np.dot(optical_coef, results[0])))
 
-            print('----------------------')
-            print('test count : %d' % test_count)
-            print('correct   degree : %d' % yaw)
-            print('predicted degree : %d' % np_degree[max_idx])
-            print('average   degree : %d' % (np.dot(optical_coef, results[0])))
-            # print('average   degree : %d' % (np.dot(np_degree_5, results[0])))
-            print('correct count : %d' % correct_count)
+        print('----------------------')
+        print('test count : %d' % test_count)
+        print('correct   degree : %d' % designed_deg)
+        print('predicted degree : %d' % np_degree[max_idx])
+        print('average   degree : %d' % (np.dot(optical_coef, results[0])))
+        print('correct count : %d' % correct_count)
 
-            """
-            if test_count == 3:
-                break
-            """
+        """
+        if test_count == 3:
+            break
+        """
 
     diff_np = np.array(diff_ls)
     print('standard deviation : %.2f' % np.std(diff_np))
     print('mean               : %.2f' % np.mean(diff_np))
-
-    hist, bins = np.histogram(diff_np, bins=18)
+    print(diff_np)
 
     # -90〜90までplot
-    plt.hist(diff_np, bins=36)
+    plt.hist(diff_np, bins=181)
     plt.xlim(0, 180)
     plt.xlabel("degree")
     plt.ylabel('number')
-    plt.savefig(model_path + "hoge2.png")
+    plt.savefig(model_path + "test_hist.png")
