@@ -15,6 +15,14 @@ def get_matpath(img_path):
     return mat_path
 
 
+def get_img_name(img_path):
+    file_path, file_name = os.path.split(img_path)
+    name_ls = file_name.split('.')
+    img_name = name_ls[0]+'.jpg'
+
+    return img_name
+
+
 def get_degree_from_mat(mat_path):
     # Get yaw, pitch, roll from .mat annotation.
     # They are in radians

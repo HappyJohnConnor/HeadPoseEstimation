@@ -11,8 +11,6 @@ import utils_for_keras
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Head pose estimation using the Hopenet network.')
-    parser.add_argument('--model_path', dest='model_path',
-                        help='String appended to output model.', default='1', type=str)
     parser.add_argument('--direction', dest='direction',
                         default='yaw', type=str)
     parser.add_argument('--output_num', dest='output_num',
@@ -37,7 +35,8 @@ if __name__ == '__main__':
     test_count = 0
     correct_count = 0
     degree_th = 90
-
+    fail_count = 0
+    txt_path = 'result.txt'
     diff_ls = []
 
     np_degree = np.array([-10, -20, -30, -40, -50, -60, -
@@ -60,49 +59,59 @@ if __name__ == '__main__':
     optical_coef = np.dot(process_np, true_np)
 
     designed_deg = None
-    for jpg_image in jpg_images:
-        mat_file = utils.get_matpath(jpg_image)
-        pitch_deg, yaw_deg, roll_deg = utils.get_degree_from_mat(mat_file)
-        if args.direction == 'pitch':
-            designed_deg = pitch_deg
-        elif args.direction == 'yaw':
-            designed_deg = yaw_deg
-        elif args.direction == 'roll':
-            designed_deg = roll_deg
+    with open(txt_path, 'w') as f:
+        for jpg_image in jpg_images:
+            mat_file = utils.get_matpath(jpg_image)
+            pitch_deg, yaw_deg, roll_deg = utils.get_degree_from_mat(mat_file)
+            if args.direction == 'pitch':
+                designed_deg = pitch_deg
+            elif args.direction == 'yaw':
+                designed_deg = yaw_deg
+            elif args.direction == 'roll':
+                designed_deg = roll_deg
 
-        test_count += 1
-        img = utils.crop_image(mat_file, jpg_image)
-        img = img_to_array(img.resize((img_size, img_size)))
+            test_count += 1
+            img = utils.crop_image(mat_file, jpg_image)
+            img = img_to_array(img.resize((img_size, img_size)))
 
-        # 0-1に変換
-        img_nad = img/255
-        # 4次元配列に
-        img_nad = np.expand_dims(img_nad, axis=0)
-        results = model.predict(img_nad)
-        # 最大値を返す
-        max_idx = results[0].argmax()
-        if np_degree[max_idx] == int(designed_deg - designed_deg % 10):
-            correct_count += 1
+            # 0-1に変換
+            img_nad = img/255
+            # 4次元配列に
+            img_nad = np.expand_dims(img_nad, axis=0)
+            results = model.predict(img_nad)
+            # 最大値を返す
+            max_idx = results[0].argmax()
+            if np_degree[max_idx] == int(designed_deg - designed_deg % 10):
+                correct_count += 1
 
-        diff_ls.append(
-            abs(designed_deg - np.dot(optical_coef, results[0])))
+            diff_ls.append(
+                abs(designed_deg - np.dot(optical_coef, results[0])))
 
-        print('----------------------')
-        print('test count : %d' % test_count)
-        print('correct   degree : %d' % designed_deg)
-        print('predicted degree : %d' % np_degree[max_idx])
-        print('average   degree : %d' % (np.dot(optical_coef, results[0])))
-        print('correct count : %d' % correct_count)
+            print('----------------------')
+            print('test count : %d' % test_count)
+            print('correct   degree : %d' % designed_deg)
+            print('predicted degree : %d' % np_degree[max_idx])
+            print('average   degree : %d' % (np.dot(optical_coef, results[0])))
+            print('correct count : %d' % correct_count)
 
-        """
-        if test_count == 3:
-            break
-        """
+            if abs(designed_deg - np.dot(optical_coef, results[0])) >= 70 and fail_count <= 3:
+                fail_count += 1
+                img_name = utils.get_img_name(jpg_image)
+                s_correct = 'correct   degree : {:.2f}'.format(designed_deg)
+                s_failure = 'predicted degree : {:.2f}'.format(
+                    np.dot(optical_coef, results[0]))
+                sentence = '{}\n{}\n{}\n'.format(
+                    img_name, s_correct, s_failure)
+
+                f.write(sentence)
+            """
+            if test_count == 3:
+                break
+            """
 
     diff_np = np.array(diff_ls)
     print('standard deviation : %.2f' % np.std(diff_np))
     print('mean               : %.2f' % np.mean(diff_np))
-    print(diff_np)
 
     # -90〜90までplot
     plt.hist(diff_np, bins=181)
