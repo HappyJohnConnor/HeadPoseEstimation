@@ -82,7 +82,7 @@ if __name__ == '__main__':
             correct_count += 1
             
         diff_ls.append(designed_deg - np.dot(optical_coef, results[0]))
-
+        
         print('----------------------')
         print('test count : %d' % test_count)
         print('correct   degree : %d' % designed_deg)
@@ -105,6 +105,8 @@ if __name__ == '__main__':
     plt.hist(diff_np, bins=181)
     plt.xlim(-90, 90)
     plt.ylim(0, 600)
-    plt.xlabel("degree")
-    plt.ylabel('number')
+    plt.xlabel("degree", fontsize=18)
+    plt.ylabel('number', fontsize=18)
+    plt.tick_params(labelsize=15)
+    plt.tight_layout()
     plt.savefig(model_path + "test_hist.png")
