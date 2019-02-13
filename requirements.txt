@@ -1,5 +1,5 @@
 IPython
-keras
+Keras==2.2.4
 matplotlib
 numpy
 opencv-python
@@ -7,4 +7,4 @@ pandas
 Pillow
 scipy
 scikit-image
-tensorflow
+tensorflow-gpu==1.12.0
