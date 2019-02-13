@@ -1,21 +1,9 @@
 import argparse
 import matplotlib.pyplot as plt
-import numpy as np
-import glob
 import os
-from IPython.display import SVG
 from keras import optimizers
 from keras.callbacks import EarlyStopping
-from keras.layers import Activation, Dense, Dropout, Input, Flatten
-from keras.utils.np_utils import to_categorical
-from keras.optimizers import Adagrad
-from keras.optimizers import Adam
 from keras.preprocessing.image import ImageDataGenerator
-from keras.applications.vgg16 import VGG16
-from keras.preprocessing import image
-from keras.models import Model
-
-from PIL import Image
 import utils_for_keras
 
 
@@ -56,8 +44,6 @@ if __name__ == '__main__':
         target_size=(img_size, img_size),
         batch_size=args.batch_size,
         class_mode='categorical')
-
-    print(train_generator.class_indices)
 
     validation_generator = val_datagen.flow_from_directory(
         dataset_path + 'valid',
