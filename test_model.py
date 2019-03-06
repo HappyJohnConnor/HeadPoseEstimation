@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # load csv file to numpy
     result_np = np.loadtxt(model_path + 'result_np.csv', delimiter=",")
     true_np = np.loadtxt(model_path + 'true_np.csv', delimiter=",")
-    # calculate x
+    # calculate xmodel_path
     process_np = np.dot(result_np.T, result_np)
     # reverse
     process_np = np.linalg.inv(process_np)
